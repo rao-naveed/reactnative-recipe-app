@@ -45,3 +45,46 @@ EMAIL_PASS=your_email_pass
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_BASIC_PRICE_ID=price_...
 STRIPE_PREMIUM_PRICE_ID=price_...
+
+
+
+
+## ⚙️ Setup Instructions
+
+### Backend Setup (`/backend`)
+
+1. Go to the backend directory:
+   ```bash
+   cd backend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Create a `.env` file based on `.env.example` and add your keys.
+4. Start the server:
+   ```bash
+   npm run dev
+   ```
+
+### Mobile Setup (`/mobile`)
+
+1. Go to the mobile directory:
+   ```bash
+   cd mobile
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Create a `.env` file with your `EXPO_PUBLIC_API_URL`.
+4. Start the app:
+   ```bash
+   npx expo start
+   ```
+
+---
+
+_Developed by Rao Naveed
+
+
