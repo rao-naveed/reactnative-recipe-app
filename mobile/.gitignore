@@ -1,0 +1,13 @@
+# Environment variables
+.env
+.env*.local
+
+# Node modules & Expo dependencies
+node_modules/
+.expo/
+dist/
+web-build/
+
+# Native builds
+android/
+ios/
