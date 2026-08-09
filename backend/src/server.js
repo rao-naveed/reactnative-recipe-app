@@ -25,6 +25,16 @@ if (ENV.NODE_ENV === "production") job.start();
 app.use(cors());
 
 // =========================================================================
+// 0. ROOT ROUTE FOR TESTING (Vercel Test Route)
+// =========================================================================
+app.get("/", (req, res) => {
+  res.status(200).json({
+    message: "🚀 Server is Live and Running Successfully!",
+    status: "Active",
+  });
+});
+
+// =========================================================================
 // 1. STRIPE WEBHOOK ENDPOINT
 // IMPORTANT: Must be placed BEFORE express.json() because Stripe needs raw body
 // =========================================================================
@@ -56,9 +66,6 @@ app.post(
       const userId = session.metadata?.userId;
 
       console.log(`✅ Payment Successful for User ID: ${userId}`);
-
-      // Optional: Update your database here using Drizzle ORM
-      // e.g., await db.update(usersTable).set({ isPremium: true }).where(eq(usersTable.id, userId));
     }
 
     res.status(200).json({ received: true });
@@ -145,9 +152,14 @@ app.delete("/api/favorites/:userId/:recipeId", async (req, res) => {
   }
 });
 
+// Export app for Vercel serverless environment
+export default app;
+
 // =========================================================================
-// 4. START SERVER
+// 4. START SERVER (Local Development)
 // =========================================================================
-app.listen(PORT, "0.0.0.0", () => {
-  console.log("Server is running on PORT:", PORT);
-});
+if (process.env.NODE_ENV !== "production") {
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log("Server is running on PORT:", PORT);
+  });
+}
