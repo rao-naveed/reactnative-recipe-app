@@ -96,6 +96,22 @@ app.post("/api/favorites", async (req, res) => {
     if (!userId || !recipeId || !title) {
       return res.status(400).json({ error: "Missing required fields" });
     }
+    const existingFavorite = await db
+      .select()
+      .from(favoritesTable)
+      .where(
+        and(
+          eq(favoritesTable.userId, Number(userId)),
+          eq(favoritesTable.recipeId, Number(recipeId)),
+        ),
+      );
+
+    if (existingFavorite.length > 0) {
+      return res.status(200).json({
+        alreadyExists: true,
+        favorite: existingFavorite[0],
+      });
+    }
 
     const newFavorite = await db
       .insert(favoritesTable)
