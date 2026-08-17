@@ -1,5 +1,5 @@
 import { API_URL } from "../constants/api";
-
+console.log("API_URL", API_URL);
 const fetchJson = async (path, data) => {
   const response = await fetch(`${API_URL}${path}`, {
     method: "POST",
@@ -15,17 +15,17 @@ const fetchJson = async (path, data) => {
   }
   return result;
 };
-
+console.log("API_URL", API_URL);
 export const AuthAPI = {
   signUp: async ({ name, email, password }) => {
-    return fetchJson("/auth/signup", { name, email, password });
+    return fetchJson("/api/auth/signup", { name, email, password });
   },
 
   signIn: async ({ email, password }) => {
-    return fetchJson("/auth/signin", { email, password });
+    return fetchJson("/api/auth/signin", { email, password });
   },
 
   verifyEmail: async ({ email, code }) => {
-    return fetchJson("/auth/verify-email", { email, code });
+    return fetchJson("/api/auth/verify-email", { email, code });
   },
 };
