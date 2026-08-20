@@ -16,3 +16,7 @@ ios/
 
 expo-env.d.ts
 # @end expo-cli
+
+# Vercel / Deployments
+.vercel
+.vercel/

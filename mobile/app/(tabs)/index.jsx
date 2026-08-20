@@ -1,4 +1,231 @@
-import { View, Text, ScrollView, TouchableOpacity, FlatList, RefreshControl } from "react-native";
+// import { View, Text, ScrollView, TouchableOpacity, FlatList, RefreshControl } from "react-native";
+// import { useEffect, useState } from "react";
+// import { useRouter } from "expo-router";
+// import { MealAPI } from "../../services/mealAPI";
+// import { homeStyles } from "../../assets/styles/home.styles";
+// import { Image } from "expo-image";
+// import { COLORS } from "../../constants/colors";
+// import { Ionicons } from "@expo/vector-icons";
+// import CategoryFilter from "../../components/CategoryFilter";
+// import RecipeCard from "../../components/RecipeCard";
+// import LoadingSpinner from "../../components/LoadingSpinner";
+// import Sidebar from "../../components/Sidebar";
+// import { getNumColumns } from "../../constants/responsive";
+// import { useWindowDimensions } from "react-native";
+
+// let homeCache = null;
+
+// const HomeScreen = () => {
+//   const router = useRouter();
+//   const { width } = useWindowDimensions();
+//   const numColumns = getNumColumns(width);
+//   const [selectedCategory, setSelectedCategory] = useState(null);
+//   const [recipes, setRecipes] = useState([]);
+//   const [categories, setCategories] = useState([]);
+//   const [featuredRecipe, setFeaturedRecipe] = useState(null);
+//   const [loading, setLoading] = useState(true);
+//   const [refreshing, setRefreshing] = useState(false);
+//   const [sidebarVisible, setSidebarVisible] = useState(false);
+
+//   const loadData = async () => {
+//     try {
+//       setLoading(true);
+
+//       const [apiCategories, randomMeals, featuredMeal] = await Promise.all([
+//         MealAPI.getCategories(),
+//         MealAPI.getRandomMeals(12),
+//         MealAPI.getRandomMeal(),
+//       ]);
+
+//       const transformedCategories = apiCategories.map((cat, index) => ({
+//         id: index + 1,
+//         name: cat.strCategory,
+//         image: cat.strCategoryThumb,
+//         description: cat.strCategoryDescription,
+//       }));
+
+//       setCategories(transformedCategories);
+
+//       if (!selectedCategory) setSelectedCategory(transformedCategories[0].name);
+
+//       const transformedMeals = randomMeals
+//         .map((meal) => MealAPI.transformMealData(meal))
+//         .filter((meal) => meal !== null);
+
+//       setRecipes(transformedMeals);
+
+//       const transformedFeatured = MealAPI.transformMealData(featuredMeal);
+//       setFeaturedRecipe(transformedFeatured);
+//     } catch (error) {
+//       console.log("Error loading the data", error);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const loadCategoryData = async (category) => {
+//     try {
+//       const meals = await MealAPI.filterByCategory(category);
+//       const transformedMeals = meals
+//         .map((meal) => MealAPI.transformMealData(meal))
+//         .filter((meal) => meal !== null);
+//       setRecipes(transformedMeals);
+//     } catch (error) {
+//       console.error("Error loading category data:", error);
+//       setRecipes([]);
+//     }
+//   };
+
+//   const handleCategorySelect = async (category) => {
+//     setSelectedCategory(category);
+//     await loadCategoryData(category);
+//   };
+
+//   const onRefresh = async () => {
+//     setRefreshing(true);
+//     // await sleep(2000);
+//     await loadData();
+//     setRefreshing(false);
+//   };
+
+//   useEffect(() => {
+//     loadData();
+//   }, []);
+
+//   if (loading && !refreshing) return <LoadingSpinner message="Loading delicious recipes..." />;
+
+//   return (
+//     <View style={homeStyles.container}>
+//       {/* NAVBAR */}
+//       <View style={homeStyles.navbar}>
+//         <TouchableOpacity
+//           style={homeStyles.hamburgerButton}
+//           onPress={() => setSidebarVisible(true)}
+//           activeOpacity={0.7}
+//         >
+//           <Ionicons name="menu" size={24} color={COLORS.text} />
+//         </TouchableOpacity>
+
+//         <Text style={homeStyles.navbarTitle}>Recipes</Text>
+
+//         <TouchableOpacity
+//           style={homeStyles.profileButton}
+//           onPress={() => router.push("/profile")}
+//           activeOpacity={0.7}
+//         >
+//           <Ionicons name="person" size={20} color={COLORS.white} />
+//         </TouchableOpacity>
+//       </View>
+
+//       <Sidebar visible={sidebarVisible} onClose={() => setSidebarVisible(false)} />
+
+//       <ScrollView
+//         showsVerticalScrollIndicator={false}
+//         refreshControl={
+//           <RefreshControl
+//             refreshing={refreshing}
+//             onRefresh={onRefresh}
+//             tintColor={COLORS.primary}
+//           />
+//         }
+//         contentContainerStyle={homeStyles.scrollContent}
+//       >
+//         {/* FEATURED SECTION */}
+//         {featuredRecipe && (
+//           <View style={homeStyles.featuredSection}>
+//             <TouchableOpacity
+//               style={homeStyles.featuredCard}
+//               activeOpacity={0.9}
+//               onPress={() => router.push(`/recipe/${featuredRecipe.id}`)}
+//             >
+//               <View style={homeStyles.featuredImageContainer}>
+//                 <Image
+//                   source={{ uri: featuredRecipe.image }}
+//                   style={homeStyles.featuredImage}
+//                   contentFit="cover"
+//                   transition={500}
+//                 />
+//                 <View style={homeStyles.featuredOverlay}>
+//                   <View style={homeStyles.featuredBadge}>
+//                     <Text style={homeStyles.featuredBadgeText}>Featured</Text>
+//                   </View>
+
+//                   <View style={homeStyles.featuredContent}>
+//                     <Text style={homeStyles.featuredTitle} numberOfLines={2}>
+//                       {featuredRecipe.title}
+//                     </Text>
+
+//                     <View style={homeStyles.featuredMeta}>
+//                       <View style={homeStyles.metaItem}>
+//                         <Ionicons name="time-outline" size={16} color={COLORS.white} />
+//                         <Text style={homeStyles.metaText}>{featuredRecipe.cookTime}</Text>
+//                       </View>
+//                       <View style={homeStyles.metaItem}>
+//                         <Ionicons name="people-outline" size={16} color={COLORS.white} />
+//                         <Text style={homeStyles.metaText}>{featuredRecipe.servings}</Text>
+//                       </View>
+//                       {featuredRecipe.area && (
+//                         <View style={homeStyles.metaItem}>
+//                           <Ionicons name="location-outline" size={16} color={COLORS.white} />
+//                           <Text style={homeStyles.metaText}>{featuredRecipe.area}</Text>
+//                         </View>
+//                       )}
+//                     </View>
+//                   </View>
+//                 </View>
+//               </View>
+//             </TouchableOpacity>
+//           </View>
+//         )}
+
+//         {categories.length > 0 && (
+//           <CategoryFilter
+//             categories={categories}
+//             selectedCategory={selectedCategory}
+//             onSelectCategory={handleCategorySelect}
+//           />
+//         )}
+
+//         <View style={homeStyles.recipesSection}>
+//           <View style={homeStyles.sectionHeader}>
+//             <Text style={homeStyles.sectionTitle}>{selectedCategory}</Text>
+//           </View>
+
+//           {recipes.length > 0 ? (
+//             <FlatList
+//               data={recipes}
+//               renderItem={({ item }) => <RecipeCard recipe={item} />}
+//               keyExtractor={(item) => item.id.toString()}
+//               numColumns={numColumns}
+//               key={numColumns}
+//               columnWrapperStyle={numColumns > 1 ? homeStyles.row : undefined}
+//               contentContainerStyle={homeStyles.recipesGrid}
+//               scrollEnabled={false}
+//               // ListEmptyComponent={}
+//             />
+//           ) : (
+//             <View style={homeStyles.emptyState}>
+//               <Ionicons name="restaurant-outline" size={64} color={COLORS.textLight} />
+//               <Text style={homeStyles.emptyTitle}>No recipes found</Text>
+//               <Text style={homeStyles.emptyDescription}>Try a different category</Text>
+//             </View>
+//           )}
+//         </View>
+//       </ScrollView>
+//     </View>
+//   );
+// };
+
+// export default HomeScreen;
+
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  FlatList,
+  RefreshControl,
+} from "react-native";
 import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import { MealAPI } from "../../services/mealAPI";
@@ -13,12 +240,17 @@ import Sidebar from "../../components/Sidebar";
 import { getNumColumns } from "../../constants/responsive";
 import { useWindowDimensions } from "react-native";
 
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+// --------------------------------------------------
+// HOME MEMORY CACHE
+// Keeps Home data when navigating to recipe and back
+// --------------------------------------------------
+let homeCache = null;
 
 const HomeScreen = () => {
   const router = useRouter();
   const { width } = useWindowDimensions();
   const numColumns = getNumColumns(width);
+
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [recipes, setRecipes] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -27,8 +259,31 @@ const HomeScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [sidebarVisible, setSidebarVisible] = useState(false);
 
-  const loadData = async () => {
+  // --------------------------------------------------
+  // LOAD HOME DATA
+  // Uses cache unless forceRefresh is true
+  // --------------------------------------------------
+  const loadData = async (forceRefresh = false) => {
     try {
+      // ----------------------------------------------
+      // USE CACHE
+      // ----------------------------------------------
+      if (!forceRefresh && homeCache) {
+        setCategories(homeCache.categories);
+        setRecipes(homeCache.recipes);
+        setFeaturedRecipe(homeCache.featuredRecipe);
+
+        if (!selectedCategory && homeCache.categories.length > 0) {
+          setSelectedCategory(homeCache.categories[0].name);
+        }
+
+        setLoading(false);
+        return;
+      }
+
+      // ----------------------------------------------
+      // FRESH API LOAD
+      // ----------------------------------------------
       setLoading(true);
 
       const [apiCategories, randomMeals, featuredMeal] = await Promise.all([
@@ -44,31 +299,50 @@ const HomeScreen = () => {
         description: cat.strCategoryDescription,
       }));
 
-      setCategories(transformedCategories);
-
-      if (!selectedCategory) setSelectedCategory(transformedCategories[0].name);
-
       const transformedMeals = randomMeals
         .map((meal) => MealAPI.transformMealData(meal))
         .filter((meal) => meal !== null);
 
-      setRecipes(transformedMeals);
-
       const transformedFeatured = MealAPI.transformMealData(featuredMeal);
+
+      // ----------------------------------------------
+      // SAVE DATA TO CACHE
+      // ----------------------------------------------
+      homeCache = {
+        categories: transformedCategories,
+        recipes: transformedMeals,
+        featuredRecipe: transformedFeatured,
+      };
+
+      // ----------------------------------------------
+      // UPDATE STATE
+      // ----------------------------------------------
+      setCategories(transformedCategories);
+
+      if (!selectedCategory && transformedCategories.length > 0) {
+        setSelectedCategory(transformedCategories[0].name);
+      }
+
+      setRecipes(transformedMeals);
       setFeaturedRecipe(transformedFeatured);
     } catch (error) {
-      console.log("Error loading the data", error);
+      console.log("Error loading the data:", error);
     } finally {
       setLoading(false);
     }
   };
 
+  // --------------------------------------------------
+  // LOAD CATEGORY RECIPES
+  // --------------------------------------------------
   const loadCategoryData = async (category) => {
     try {
       const meals = await MealAPI.filterByCategory(category);
+
       const transformedMeals = meals
         .map((meal) => MealAPI.transformMealData(meal))
         .filter((meal) => meal !== null);
+
       setRecipes(transformedMeals);
     } catch (error) {
       console.error("Error loading category data:", error);
@@ -76,23 +350,39 @@ const HomeScreen = () => {
     }
   };
 
+  // --------------------------------------------------
+  // CATEGORY SELECT
+  // --------------------------------------------------
   const handleCategorySelect = async (category) => {
     setSelectedCategory(category);
     await loadCategoryData(category);
   };
 
+  // --------------------------------------------------
+  // PULL TO REFRESH
+  // Forces fresh API data
+  // --------------------------------------------------
   const onRefresh = async () => {
     setRefreshing(true);
-    // await sleep(2000);
-    await loadData();
+
+    await loadData(true);
+
     setRefreshing(false);
   };
 
+  // --------------------------------------------------
+  // INITIAL LOAD
+  // --------------------------------------------------
   useEffect(() => {
-    loadData();
+    loadData(false);
   }, []);
 
-  if (loading && !refreshing) return <LoadingSpinner message="Loading delicious recipes..." />;
+  // --------------------------------------------------
+  // LOADING SCREEN
+  // --------------------------------------------------
+  if (loading && !refreshing) {
+    return <LoadingSpinner message="Loading delicious recipes..." />;
+  }
 
   return (
     <View style={homeStyles.container}>
@@ -117,7 +407,10 @@ const HomeScreen = () => {
         </TouchableOpacity>
       </View>
 
-      <Sidebar visible={sidebarVisible} onClose={() => setSidebarVisible(false)} />
+      <Sidebar
+        visible={sidebarVisible}
+        onClose={() => setSidebarVisible(false)}
+      />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -145,6 +438,7 @@ const HomeScreen = () => {
                   contentFit="cover"
                   transition={500}
                 />
+
                 <View style={homeStyles.featuredOverlay}>
                   <View style={homeStyles.featuredBadge}>
                     <Text style={homeStyles.featuredBadgeText}>Featured</Text>
@@ -157,17 +451,40 @@ const HomeScreen = () => {
 
                     <View style={homeStyles.featuredMeta}>
                       <View style={homeStyles.metaItem}>
-                        <Ionicons name="time-outline" size={16} color={COLORS.white} />
-                        <Text style={homeStyles.metaText}>{featuredRecipe.cookTime}</Text>
+                        <Ionicons
+                          name="time-outline"
+                          size={16}
+                          color={COLORS.white}
+                        />
+
+                        <Text style={homeStyles.metaText}>
+                          {featuredRecipe.cookTime}
+                        </Text>
                       </View>
+
                       <View style={homeStyles.metaItem}>
-                        <Ionicons name="people-outline" size={16} color={COLORS.white} />
-                        <Text style={homeStyles.metaText}>{featuredRecipe.servings}</Text>
+                        <Ionicons
+                          name="people-outline"
+                          size={16}
+                          color={COLORS.white}
+                        />
+
+                        <Text style={homeStyles.metaText}>
+                          {featuredRecipe.servings}
+                        </Text>
                       </View>
+
                       {featuredRecipe.area && (
                         <View style={homeStyles.metaItem}>
-                          <Ionicons name="location-outline" size={16} color={COLORS.white} />
-                          <Text style={homeStyles.metaText}>{featuredRecipe.area}</Text>
+                          <Ionicons
+                            name="location-outline"
+                            size={16}
+                            color={COLORS.white}
+                          />
+
+                          <Text style={homeStyles.metaText}>
+                            {featuredRecipe.area}
+                          </Text>
                         </View>
                       )}
                     </View>
@@ -178,6 +495,7 @@ const HomeScreen = () => {
           </View>
         )}
 
+        {/* CATEGORY FILTER */}
         {categories.length > 0 && (
           <CategoryFilter
             categories={categories}
@@ -186,6 +504,7 @@ const HomeScreen = () => {
           />
         )}
 
+        {/* RECIPES */}
         <View style={homeStyles.recipesSection}>
           <View style={homeStyles.sectionHeader}>
             <Text style={homeStyles.sectionTitle}>{selectedCategory}</Text>
@@ -201,13 +520,20 @@ const HomeScreen = () => {
               columnWrapperStyle={numColumns > 1 ? homeStyles.row : undefined}
               contentContainerStyle={homeStyles.recipesGrid}
               scrollEnabled={false}
-              // ListEmptyComponent={}
             />
           ) : (
             <View style={homeStyles.emptyState}>
-              <Ionicons name="restaurant-outline" size={64} color={COLORS.textLight} />
+              <Ionicons
+                name="restaurant-outline"
+                size={64}
+                color={COLORS.textLight}
+              />
+
               <Text style={homeStyles.emptyTitle}>No recipes found</Text>
-              <Text style={homeStyles.emptyDescription}>Try a different category</Text>
+
+              <Text style={homeStyles.emptyDescription}>
+                Try a different category
+              </Text>
             </View>
           )}
         </View>
@@ -215,10 +541,5 @@ const HomeScreen = () => {
     </View>
   );
 };
-
-
-
-
-
 
 export default HomeScreen;

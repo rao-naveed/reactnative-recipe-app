@@ -146,7 +146,7 @@ const RecipeDetailScreen = () => {
     if (!userId || !recipeId) return;
 
     try {
-      const response = await fetch(`${API_URL}/api//favorites/${userId}`);
+      const response = await fetch(`${API_URL}/api/favorites/${userId}`);
 
       if (!response.ok) return;
 
@@ -344,18 +344,10 @@ const RecipeDetailScreen = () => {
           } else if (viewData.limitReached) {
             limitReachedState = true;
           }
-
-          if (typeof viewData.views === "number") {
-            setViews(viewData.views);
-          }
         }
 
         setIsPremium(premiumState);
         setIsLimitReached(limitReachedState);
-
-        if (typeof savedData === "boolean") {
-          setIsSaved(savedData);
-        }
 
         // ---------------------------------------------
         // UPDATE CACHE
@@ -366,8 +358,7 @@ const RecipeDetailScreen = () => {
             recipe: updatedRecipe,
             isLimitReached: limitReachedState,
             isPremium: premiumState,
-            views: typeof viewData?.views === "number" ? viewData.views : views,
-            isSaved: typeof savedData === "boolean" ? savedData : isSaved,
+            isSaved: isSaved,
           });
         }
       } catch (error) {
